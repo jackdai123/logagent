@@ -1,0 +1,54 @@
+{
+	"app": "logagent",
+
+	"protos": [{
+		"name": "logmsg",
+		"fields": [{
+			"name": "value",
+			"type": "string"
+		}]
+	}],
+
+	"rpc_server": {
+		"ip": "0.0.0.0",
+		"port": 4000,
+		"worker_type": "thread",
+		"worker_sum": 4,
+		"apis": [{
+			"name": "critical",
+			"args": [{
+				"name": "msg",
+				"type": "logmsg"
+			}],
+			"ret": false
+		},{
+			"name": "error",
+			"args": [{
+				"name": "msg",
+				"type": "logmsg"
+			}],
+			"ret": false
+		},{
+			"name": "warning",
+			"args": [{
+				"name": "msg",
+				"type": "logmsg"
+			}],
+			"ret": false
+		},{
+			"name": "info",
+			"args": [{
+				"name": "msg",
+				"type": "logmsg"
+			}],
+			"ret": false
+		},{
+			"name": "debug",
+			"args": [{
+				"name": "msg",
+				"type": "logmsg"
+			}],
+			"ret": false
+		}]
+	}
+}
