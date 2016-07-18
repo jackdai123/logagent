@@ -11,17 +11,19 @@ import traceback
 import string
 import consistent_hash
 import socket
+import logagent_proto
 
 class Client(object):
 	#@param conffile : str
 	#@param shardingID : int
-	def __init__(self, conffile, shardingID=None):
+	def __init__(self, conffile, shardingID=None, modulename=''):
 		self.addrs = {}
 		self.weight = {}
 		self.bakaddrs = {}
 		self.shardsec = {}
 		self.downs = []
 		self.clientkey = None
+		self.modulename = modulename
 
 		try:
 			if shardingID != None:
@@ -144,10 +146,13 @@ class Client(object):
 
 	#@param msg : logmsg
 	#@return : no
-	def critical(self, msg):
+	def critical(self, msg, *args):
 		for i in xrange(3):
 			try:
-				return self.client.notify('critical', msg)
+				m = logagent_proto.logmsg()
+				m.value = '[' + self.modulename + '] ' + msg % args
+				future = self.client.call_async('critical', m)
+				return future.get()
 			except Exception, e:
 				if not self._failover():
 					break
@@ -155,10 +160,13 @@ class Client(object):
 
 	#@param msg : logmsg
 	#@return : no
-	def error(self, msg):
+	def error(self, msg, *args):
 		for i in xrange(3):
 			try:
-				return self.client.notify('error', msg)
+				m = logagent_proto.logmsg()
+				m.value = '[' + self.modulename + '] ' + msg % args
+				future = self.client.call_async('error', m)
+				return future.get()
 			except Exception, e:
 				if not self._failover():
 					break
@@ -166,10 +174,13 @@ class Client(object):
 
 	#@param msg : logmsg
 	#@return : no
-	def warning(self, msg):
+	def warning(self, msg, *args):
 		for i in xrange(3):
 			try:
-				return self.client.notify('warning', msg)
+				m = logagent_proto.logmsg()
+				m.value = '[' + self.modulename + '] ' + msg % args
+				future = self.client.call_async('warning', m)
+				return future.get()
 			except Exception, e:
 				if not self._failover():
 					break
@@ -177,10 +188,13 @@ class Client(object):
 
 	#@param msg : logmsg
 	#@return : no
-	def info(self, msg):
+	def info(self, msg, *args):
 		for i in xrange(3):
 			try:
-				return self.client.notify('info', msg)
+				m = logagent_proto.logmsg()
+				m.value = '[' + self.modulename + '] ' + msg % args
+				future = self.client.call_async('info', m)
+				return future.get()
 			except Exception, e:
 				if not self._failover():
 					break
@@ -188,10 +202,13 @@ class Client(object):
 
 	#@param msg : logmsg
 	#@return : no
-	def debug(self, msg):
+	def debug(self, msg, *args):
 		for i in xrange(3):
 			try:
-				return self.client.notify('debug', msg)
+				m = logagent_proto.logmsg()
+				m.value = '[' + self.modulename + '] ' + msg % args
+				future = self.client.call_async('debug', m)
+				return future.get()
 			except Exception, e:
 				if not self._failover():
 					break
