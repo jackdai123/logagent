@@ -8,7 +8,6 @@ import ConfigParser
 import traceback
 import daemonize
 import ctypes
-import timeit
 import gevent
 import multiprocessing
 from multiprocessing import Pool as ProcessPool
@@ -28,39 +27,29 @@ logger = None
 
 class RPCHandler(object):
 	def critical(self, msg):
-		timeIn = timeit.default_timer()
 		msg_data = logagent_proto.logmsg()
 		msg_data.from_msgpack(msg)
 		res = rpc_worker_pool.apply_async(logagent_rpc_handler.critical, (logger, msg_data,))
-		timeUse = timeit.default_timer() - timeIn
 
 	def error(self, msg):
-		timeIn = timeit.default_timer()
 		msg_data = logagent_proto.logmsg()
 		msg_data.from_msgpack(msg)
 		res = rpc_worker_pool.apply_async(logagent_rpc_handler.error, (logger, msg_data,))
-		timeUse = timeit.default_timer() - timeIn
 
 	def warning(self, msg):
-		timeIn = timeit.default_timer()
 		msg_data = logagent_proto.logmsg()
 		msg_data.from_msgpack(msg)
 		res = rpc_worker_pool.apply_async(logagent_rpc_handler.warning, (logger, msg_data,))
-		timeUse = timeit.default_timer() - timeIn
 
 	def info(self, msg):
-		timeIn = timeit.default_timer()
 		msg_data = logagent_proto.logmsg()
 		msg_data.from_msgpack(msg)
 		res = rpc_worker_pool.apply_async(logagent_rpc_handler.info, (logger, msg_data,))
-		timeUse = timeit.default_timer() - timeIn
 
 	def debug(self, msg):
-		timeIn = timeit.default_timer()
 		msg_data = logagent_proto.logmsg()
 		msg_data.from_msgpack(msg)
 		res = rpc_worker_pool.apply_async(logagent_rpc_handler.debug, (logger, msg_data,))
-		timeUse = timeit.default_timer() - timeIn
 
 class Service:
 	def __init__(self, argv):

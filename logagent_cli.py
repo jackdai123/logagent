@@ -71,7 +71,8 @@ class Client(object):
 				recovers.append(down_server)
 				self.con_hash.add_nodes({down_server : self.weight[down_server]})
 		for s in recovers:
-			self.downs.remove(s)
+			if s in self.downs:
+				self.downs.remove(s)
 		self._set_hashring_client()
 
 	def _set_hashring_client(self):
@@ -112,7 +113,10 @@ class Client(object):
 
 	def _hashring_failover(self):
 		self.downs.append(self.con_server)
-		self.con_hash.del_nodes([self.con_server])
+		try:
+			self.con_hash.del_nodes([self.con_server])
+		except Exception as e:
+			pass
 		if len(self.downs) > len(self.addrs)/2:
 			self._rebuild_hashring_client()
 		else:
