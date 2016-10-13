@@ -1,0 +1,122 @@
+{
+	"app": "logagent",
+
+	"protos": [{
+		"name": "debugmsg",
+		"fields": [{
+			"name": "value",
+			"type": "string"
+		}]
+	},{
+		"name": "opmsg",
+		"fields": [{
+			"name": "time",
+			"type": "int"
+		},{
+			"name": "user",
+			"type": "string"
+		},{
+			"name": "action",
+			"type": "string"
+		},{
+			"name": "args",
+			"type": "string"
+		},{
+			"name": "others",
+			"type": "string"
+		}]
+	},{
+		"name": "webmsg",
+		"fields": [{
+			"name": "time",
+			"type": "int"
+		},{
+			"name": "clientip",
+			"type": "string"
+		},{
+			"name": "url",
+			"type": "string"
+		},{
+			"name": "status",
+			"type": "int"
+		},{
+			"name": "runtime",
+			"type": "int"
+		}]
+	},{
+		"name": "busimsg",
+		"fields": [{
+			"name": "time",
+			"type": "int"
+		},{
+			"name": "svrname",
+			"type": "string"
+		},{
+			"name": "api",
+			"type": "string"
+		},{
+			"name": "args",
+			"type": "string"
+		},{
+			"name": "status",
+			"type": "string"
+		},{
+			"name": "runtime",
+			"type": "int"
+		}]
+	}],
+
+	"rpc_client": {
+		"mode": "sharding"
+	},
+
+	"rpc_server": {
+		"ip": "0.0.0.0",
+		"port": 4000,
+		"worker_type": "thread",
+		"worker_sum": 4,
+		"apis": [{
+			"name": "critical",
+			"req_proto": "debugmsg"
+		},{
+			"name": "error",
+			"req_proto": "debugmsg"
+		},{
+			"name": "warning",
+			"req_proto": "debugmsg"
+		},{
+			"name": "info",
+			"req_proto": "debugmsg"
+		},{
+			"name": "debug",
+			"req_proto": "debugmsg"
+		},{
+			"name": "opreport",
+			"req_proto": "opmsg"
+		},{
+			"name": "webreport",
+			"req_proto": "webmsg"
+		},{
+			"name": "busireport",
+			"req_proto": "busimsg"
+		}]
+	},
+
+	"self_server": {
+		"dispatch_type": "custom",
+		"worker_type": "thread",
+		"groups" : [{
+			"group_name": "autoclean",
+			"worker_sum": 1
+		},{
+			"group_name": "machine_collect",
+			"worker_sum": 1
+		},{
+			"group_name": "process_collect",
+			"worker_sum": 1
+		},{
+			"group_name": "business_collect",
+			"worker_sum": 1
+		}]
+	}
+}

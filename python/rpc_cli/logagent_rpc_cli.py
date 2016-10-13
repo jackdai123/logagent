@@ -3,31 +3,29 @@
 
 import os
 import sys
-import time
+import string
 import random
+import socket
 import ConfigParser
 import msgpackrpc
 import traceback
-import string
 import consistent_hash
-import socket
-import logagent_proto
+import importlib
 
 class Client(object):
 	#@param conffile : str
-	#@param shardingID : int
-	def __init__(self, conffile, shardingID=None, modulename=''):
+	#@param caller : str
+	def __init__(self, conffile, caller=''):
 		self.addrs = {}
 		self.weight = {}
 		self.bakaddrs = {}
 		self.shardsec = {}
 		self.downs = []
-		self.clientkey = None
-		self.modulename = modulename
+		self.clientkey = 0
+		self.caller = caller
+		self.rpc_proto = None
 
 		try:
-			if shardingID != None:
-				self.clientkey = shardingID
 			self.conf = ConfigParser.ConfigParser()
 			self.conf.read(conffile)
 			self.mode = self.conf.get('server', 'mode')
@@ -50,17 +48,31 @@ class Client(object):
 				else:
 					raise TypeError('type of server mode isnot correct!')
 			self._build_client()
+			self._get_rpc_proto()
 		except Exception, e:
 			print traceback.format_exc()
 			sys.exit()
+
+	def _get_rpc_proto(self):
+		absolute_path = os.path.dirname(os.path.abspath(os.path.join(__file__, '..')))
+		for python_path in os.getenv('PYTHONPATH').split(':'):
+			if absolute_path.startswith(python_path):
+				rootpath = os.path.relpath(absolute_path, python_path).replace(os.path.sep, '.')
+				self.rpc_proto = importlib.import_module('.rpc_proto.logagent_rpc_proto', rootpath)
+				break
+		else:
+			raise IOError('%s is not in PYTHONPATH' % (__file__))
+
+	def setShardingID(self, shardingID):
+		if type(shardingID) != type(1):
+			raise TypeError('shardingID isnot int type!')
+		self.clientkey = shardingID
 
 	def _build_client(self):
 		if self.mode == 'hashring':
 			self.con_hash = consistent_hash.ConsistentHash(self.weight)
 			self._set_hashring_client()
 		elif self.mode == 'sharding':
-			if type(self.clientkey) != type(1):
-				raise TypeError('shardingID isnot int type')
 			self._set_sharding_client()
 
 	def _rebuild_hashring_client(self):
@@ -148,73 +160,93 @@ class Client(object):
 		elif self.mode == 'sharding':
 			return self._sharding_failover()
 
-	#@param msg : logmsg
-	#@return : no
+	#@req : debugmsg
 	def critical(self, msg, *args):
+		req = self.rpc_proto.debugmsg()
+		req.value = '[' + self.caller + '] ' + msg % args
 		for i in xrange(3):
 			try:
-				m = logagent_proto.logmsg()
-				m.value = '[' + self.modulename + '] ' + msg % args
-				future = self.client.call_async('critical', m)
-				return future.get()
+				self.client.notify('critical', req)
+				return None
 			except Exception, e:
 				if not self._failover():
 					break
-		raise Exception, e
 
-	#@param msg : logmsg
-	#@return : no
+	#@req : debugmsg
 	def error(self, msg, *args):
+		req = self.rpc_proto.debugmsg()
+		req.value = '[' + self.caller + '] ' + msg % args
 		for i in xrange(3):
 			try:
-				m = logagent_proto.logmsg()
-				m.value = '[' + self.modulename + '] ' + msg % args
-				future = self.client.call_async('error', m)
-				return future.get()
+				self.client.notify('error', req)
+				return None
 			except Exception, e:
 				if not self._failover():
 					break
-		raise Exception, e
 
-	#@param msg : logmsg
-	#@return : no
+	#@req : debugmsg
 	def warning(self, msg, *args):
+		req = self.rpc_proto.debugmsg()
+		req.value = '[' + self.caller + '] ' + msg % args
 		for i in xrange(3):
 			try:
-				m = logagent_proto.logmsg()
-				m.value = '[' + self.modulename + '] ' + msg % args
-				future = self.client.call_async('warning', m)
-				return future.get()
+				self.client.notify('warning', req)
+				return None
 			except Exception, e:
 				if not self._failover():
 					break
-		raise Exception, e
 
-	#@param msg : logmsg
-	#@return : no
+	#@req : debugmsg
 	def info(self, msg, *args):
+		req = self.rpc_proto.debugmsg()
+		req.value = '[' + self.caller + '] ' + msg % args
 		for i in xrange(3):
 			try:
-				m = logagent_proto.logmsg()
-				m.value = '[' + self.modulename + '] ' + msg % args
-				future = self.client.call_async('info', m)
-				return future.get()
+				self.client.notify('info', req)
+				return None
 			except Exception, e:
 				if not self._failover():
 					break
-		raise Exception, e
 
-	#@param msg : logmsg
-	#@return : no
+	#@req : debugmsg
 	def debug(self, msg, *args):
+		req = self.rpc_proto.debugmsg()
+		req.value = '[' + self.caller + '] ' + msg % args
 		for i in xrange(3):
 			try:
-				m = logagent_proto.logmsg()
-				m.value = '[' + self.modulename + '] ' + msg % args
-				future = self.client.call_async('debug', m)
-				return future.get()
+				self.client.notify('debug', req)
+				return None
 			except Exception, e:
 				if not self._failover():
 					break
-		raise Exception, e
+
+	#@req : opmsg
+	def opreport(self, req):
+		for i in xrange(3):
+			try:
+				self.client.notify('opreport', req)
+				return None
+			except Exception, e:
+				if not self._failover():
+					break
+
+	#@req : webmsg
+	def webreport(self, req):
+		for i in xrange(3):
+			try:
+				self.client.notify('webreport', req)
+				return None
+			except Exception, e:
+				if not self._failover():
+					break
+
+	#@req : busimsg
+	def busireport(self, req):
+		for i in xrange(3):
+			try:
+				self.client.notify('busireport', req)
+				return None
+			except Exception, e:
+				if not self._failover():
+					break
 
