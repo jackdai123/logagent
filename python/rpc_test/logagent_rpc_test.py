@@ -2,7 +2,9 @@
 #-*- coding: utf-8 -*-
 
 import os
+import time
 import importlib
+import multiprocessing.dummy
 
 class RPCTest:
 	def __init__(self):
@@ -28,8 +30,10 @@ class RPCTest:
 		self.test_info()
 		self.test_debug()
 		self.test_opreport()
+		self.test_opquery()
 		self.test_webreport()
 		self.test_busireport()
+		#self.test_multithread()
 
 	def test_critical(self):
 		ret = self.cli.critical('%s %s', 'test', 'critical')
@@ -59,6 +63,16 @@ class RPCTest:
 		ret = self.cli.opreport(req)
 		print 'opreport ret %s' % (ret)
 
+	def test_opquery(self):
+		req = self.rpc_proto.opqueryreq()
+		req.user = 'david'
+		req.begintime = 1476344719
+		req.endtime = 1476344799
+		ret = self.cli.opquery(req)
+		print 'opquery ret %d oplogs:' % (len(ret.oplogs))
+		for oplog in ret.oplogs:
+			print '\t', oplog.time, oplog.user, oplog.action, oplog.args, oplog.others
+
 	def test_webreport(self):
 		req = self.rpc_proto.webmsg()
 		ret = self.cli.webreport(req)
@@ -68,6 +82,25 @@ class RPCTest:
 		req = self.rpc_proto.busimsg()
 		ret = self.cli.busireport(req)
 		print 'busireport ret %s' % (ret)
+
+	def test_multithread(self):
+		thread_sum = 5
+		thread_pool = []
+
+		for i in xrange(thread_sum):
+			t = multiprocessing.dummy.DummyProcess(
+				target = self.thread_logic,
+				args = (i, self.cli))
+			thread_pool.append(t)
+			t.start()
+
+		for t in thread_pool:
+			t.join()
+
+	def thread_logic(self, tid, client):
+		while 1:
+			client.info('thread%d test info', tid)
+			time.sleep((tid+1)*0.01)
 
 if __name__ == '__main__':
 	RPCTest().run()

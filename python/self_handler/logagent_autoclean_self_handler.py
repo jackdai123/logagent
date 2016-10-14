@@ -11,7 +11,9 @@ class process:
 		self.do()
 
 	def do(self):
+		interval = self.args['conf'].getint('autoclean', 'interval')
+
 		while 1:
-			print '%s thread%d %s' % (os.path.splitext(os.path.basename(__file__))[0], self.worker_id, self.args)
-			time.sleep(5)
+			self.args['oplog'].delete(0, int(time.time()) - interval)
+			time.sleep(300)
 

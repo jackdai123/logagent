@@ -26,6 +26,25 @@
 			"type": "string"
 		}]
 	},{
+		"name": "opqueryreq",
+		"fields": [{
+			"name": "user",
+			"type": "string"
+		},{
+			"name": "begintime",
+			"type": "int"
+		},{
+			"name": "endtime",
+			"type": "int"
+		}]
+	},{
+		"name": "opqueryres",
+		"fields": [{
+			"name": "oplogs",
+			"type": "list",
+			"subtype": "opmsg"
+		}]
+	},{
 		"name": "webmsg",
 		"fields": [{
 			"name": "time",
@@ -93,6 +112,10 @@
 		},{
 			"name": "opreport",
 			"req_proto": "opmsg"
+		},{
+			"name": "opquery",
+			"req_proto": "opqueryreq",
+			"res_proto": "opqueryres"
 		},{
 			"name": "webreport",
 			"req_proto": "webmsg"

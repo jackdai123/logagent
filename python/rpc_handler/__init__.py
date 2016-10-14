@@ -59,6 +59,10 @@ class RPCHandler:
 		res = self.rpc_worker_pool.apply_async(self.func_map['opreport'].opreport, (req,))
 		return res.get()
 
+	def opquery(self, req):
+		res = self.rpc_worker_pool.apply_async(self.func_map['opquery'].opquery, (req,))
+		return res.get()
+
 	def webreport(self, req):
 		res = self.rpc_worker_pool.apply_async(self.func_map['webreport'].webreport, (req,))
 		return res.get()

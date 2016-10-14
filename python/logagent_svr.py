@@ -21,11 +21,11 @@ class Service:
 		self.daemon = False
 		self.conffile = ''
 		self.rootpath = ''
+		self.args = {}
 		self.conf = ConfigParser.ConfigParser()
 		self.parse_opts(argv)
 		self.parse_conf(argv)
 		self.get_root_path()
-		self.args = {}
 
 	def parse_opts(self, argv):
 		try:
@@ -46,6 +46,8 @@ class Service:
 		if self.conffile != '' and os.path.exists(self.conffile):
 			try:
 				self.conf.read(self.conffile)
+				self.args['conffile'] = self.conffile
+				self.args['conf'] = self.conf
 			except Exception,e:
 				print traceback.format_exc()
 				sys.exit()
@@ -108,7 +110,7 @@ class Service:
 		rpc_handler = importlib.import_module('.rpc_handler', self.rootpath)
 		rpc_init = importlib.import_module('.rpc_init', self.rootpath)
 
-		args = {'rpc_worker_pool' : rpc_worker_pool, 'conffile' : self.conffile}
+		args = {'rpc_worker_pool' : rpc_worker_pool}
 		rpc_init.init(args, rpc_worker_type)
 		args.update(self.args)
 
@@ -186,7 +188,7 @@ class Service:
 
 	def start_self_custom_server(self, self_worker_type):
 		self_init = importlib.import_module('.self_init', self.rootpath)
-		args = {'conf' : self.conf}
+		args = {}
 		self_init.init(args, self_worker_type)
 		args.update(self.args)
 		self_worker_map = {}
@@ -260,7 +262,7 @@ class Service:
 		self_server_manager_dead = True
 
 		global_init = importlib.import_module('.global_init', self.rootpath)
-		global_init.init(self.args, self.conffile)
+		global_init.init(self.args)
 
 		while 1:
 			if self.conf.has_section('self_server') and self_server_manager_dead:

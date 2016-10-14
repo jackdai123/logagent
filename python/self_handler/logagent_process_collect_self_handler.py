@@ -12,6 +12,6 @@ class process:
 
 	def do(self):
 		while 1:
-			print '%s thread%d %s' % (os.path.splitext(os.path.basename(__file__))[0], self.worker_id, self.args)
+			#print '%s thread%d %s' % (os.path.splitext(os.path.basename(__file__))[0], self.worker_id, self.args)
 			time.sleep(5)
 

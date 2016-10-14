@@ -230,6 +230,20 @@ class Client(object):
 				if not self._failover():
 					break
 
+	#@req : opqueryreq
+	#@res : opqueryres
+	def opquery(self, req):
+		for i in xrange(3):
+			try:
+				future = self.client.call_async('opquery', req)
+				result = future.get()
+				res = self.rpc_proto.opqueryres()
+				res.from_msgpack(result)
+				return res
+			except Exception, e:
+				if not self._failover():
+					break
+
 	#@req : webmsg
 	def webreport(self, req):
 		for i in xrange(3):

@@ -2,6 +2,7 @@
 #-*- coding: utf-8 -*-
 
 import os
+import time
 import importlib
 
 class handler:
@@ -26,7 +27,7 @@ class handler:
 		req.from_msgpack(m)
 
 		########add logic code here########
-		self.args['logger'].critical(req.value)
+		self.args['debuglog'].critical(req.value)
 
 		########end logic code########
 
@@ -38,7 +39,7 @@ class handler:
 		req.from_msgpack(m)
 
 		########add logic code here########
-		self.args['logger'].error(req.value)
+		self.args['debuglog'].error(req.value)
 
 		########end logic code########
 
@@ -50,7 +51,7 @@ class handler:
 		req.from_msgpack(m)
 
 		########add logic code here########
-		self.args['logger'].warning(req.value)
+		self.args['debuglog'].warning(req.value)
 
 		########end logic code########
 
@@ -62,7 +63,7 @@ class handler:
 		req.from_msgpack(m)
 
 		########add logic code here########
-		self.args['logger'].info(req.value)
+		self.args['debuglog'].info(req.value)
 
 		########end logic code########
 
@@ -74,7 +75,7 @@ class handler:
 		req.from_msgpack(m)
 
 		########add logic code here########
-		self.args['logger'].debug(req.value)
+		self.args['debuglog'].debug(req.value)
 
 		########end logic code########
 
@@ -86,10 +87,31 @@ class handler:
 		req.from_msgpack(m)
 
 		########add logic code here########
+		self.args['oplog'].insert(req)
 
 		########end logic code########
 
-		pass
+	#@req : opqueryreq
+	#@res : opqueryres
+	def opquery(self, m):
+		req = self.rpc_proto.opqueryreq()
+		req.from_msgpack(m)
+
+		########add logic code here########
+		oplog_list = self.args['oplog'].query(req)
+
+		########end logic code########
+
+		res = self.rpc_proto.opqueryres()
+		for oplog in oplog_list:
+			msg = self.rpc_proto.opmsg()
+			msg.time = int(time.mktime(oplog.time.timetuple()))
+			msg.user = oplog.user
+			msg.action = oplog.action
+			msg.args = oplog.args
+			msg.others = oplog.others
+			res.oplogs.append(msg)
+		return res
 
 	#@req : webmsg
 	def webreport(self, m):

@@ -5,7 +5,7 @@ import os
 import sys
 import traceback
 
-def init(args, conffile):
+def init(args):
 	global_init_dir = os.path.dirname(os.path.abspath(__file__))
 	files = os.listdir(global_init_dir)
 	if global_init_dir not in sys.path:
@@ -23,7 +23,7 @@ def init(args, conffile):
 		try:
 			module = __import__(module_name)
 			loaded_modules.add(module_name)
-			module.init(args, conffile)
+			module.init(args)
 		except Exception as e:
 			print 'import %s module %s' % (module_name, traceback.format_exc())
 
