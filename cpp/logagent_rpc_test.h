@@ -16,6 +16,7 @@ namespace logagent {
 			virtual int info( OptMap & bigmap );
 			virtual int debug( OptMap & bigmap );
 			virtual int opreport( OptMap & bigmap );
+			virtual int opquery( OptMap & bigmap );
 			virtual int webreport( OptMap & bigmap );
 			virtual int busireport( OptMap & bigmap );
 
@@ -38,6 +39,7 @@ namespace logagent {
 					{ "info", &TestTool::info, "c:f:h", "" },
 					{ "debug", &TestTool::debug, "c:f:h", "" },
 					{ "opreport", &TestTool::opreport, "c:f:h", "" },
+					{ "opquery", &TestTool::opquery, "c:f:h", "" },
 					{ "webreport", &TestTool::webreport, "c:f:h", "" },
 					{ "busireport", &TestTool::busireport, "c:f:h", "" },
 
@@ -61,6 +63,7 @@ namespace logagent {
 			virtual int info( OptMap & bigmap );
 			virtual int debug( OptMap & bigmap );
 			virtual int opreport( OptMap & bigmap );
+			virtual int opquery( OptMap & bigmap );
 			virtual int webreport( OptMap & bigmap );
 			virtual int busireport( OptMap & bigmap );
 

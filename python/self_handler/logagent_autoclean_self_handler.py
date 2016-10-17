@@ -11,7 +11,7 @@ class process:
 		self.do()
 
 	def do(self):
-		interval = self.args['conf'].getint('autoclean', 'interval')
+		interval = self.args['conf'].getint('oplog', 'interval')
 
 		while 1:
 			self.args['oplog'].delete(0, int(time.time()) - interval)

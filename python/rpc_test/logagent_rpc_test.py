@@ -57,7 +57,7 @@ class RPCTest:
 
 	def test_opreport(self):
 		req = self.rpc_proto.opmsg()
-		req.time = 1476344719
+		req.time = 1476678433
 		req.user = 'david'
 		req.action = 'Logout'
 		ret = self.cli.opreport(req)
@@ -66,8 +66,8 @@ class RPCTest:
 	def test_opquery(self):
 		req = self.rpc_proto.opqueryreq()
 		req.user = 'david'
-		req.begintime = 1476344719
-		req.endtime = 1476344799
+		req.begintime = 1476678433
+		req.endtime = 1476678493
 		ret = self.cli.opquery(req)
 		print 'opquery ret %d oplogs:' % (len(ret.oplogs))
 		for oplog in ret.oplogs:

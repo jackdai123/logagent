@@ -209,6 +209,24 @@ namespace logagent {
 		return 0;
 	}
 
+	int Client::opquery(const opqueryreq & req, opqueryres & res) {
+		try {
+			msgpack::rpc::future callback = this->master_cli_->call("opquery", req);
+			res = callback.get< opqueryres >();
+		} catch (std::exception & e) {
+			log(LOG_ERR, "Client::%s master[%s:%d] %s", __func__, this->svr_->master.ip, this->svr_->master.port, e.what());
+			try {
+				msgpack::rpc::future callback = this->slave_cli_->call("opquery", req);
+				res = callback.get< opqueryres >();
+			} catch (std::exception & e) {
+				log(LOG_ERR, "Client::%s slave[%s:%d] %s", __func__, this->svr_->slave.ip, this->svr_->slave.port, e.what());
+				return -1;
+			}
+		}
+
+		return 0;
+	}
+
 	int Client::webreport(const webmsg & req) {
 		try {
 			this->master_cli_->notify("webreport", req);

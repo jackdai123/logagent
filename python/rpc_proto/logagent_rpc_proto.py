@@ -60,15 +60,14 @@ class opqueryres(object):
 		self.oplogs = []
 
 	def to_msgpack(self):
-		pack = []
-		for oplog in self.oplogs:
-			pack.append(oplog.to_msgpack())
-		return pack
+		return [
+			self.oplogs
+		]
 
 	def from_msgpack(self, msg):
-		for i in xrange(len(msg)):
+		for oplog in msg[0]:
 			m = opmsg()
-			m.from_msgpack(msg[i])
+			m.from_msgpack(oplog)
 			self.oplogs.append(m)
 
 class webmsg(object):

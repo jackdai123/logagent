@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <list>
 #include <msgpack.hpp>
 
 namespace logagent {
@@ -23,6 +24,24 @@ namespace logagent {
 
 		public:
 			MSGPACK_DEFINE(time, user, action, args, others);
+	};
+
+	class opqueryreq {
+		public:
+			std::string user;
+			int begintime;
+			int endtime;
+
+		public:
+			MSGPACK_DEFINE(user, begintime, endtime);
+	};
+
+	class opqueryres {
+		public:
+			std::list<opmsg> oplogs;
+
+		public:
+			MSGPACK_DEFINE(oplogs);
 	};
 
 	class webmsg {

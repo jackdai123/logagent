@@ -34,6 +34,10 @@ namespace logagent {
 		return -1;
 	}
 
+	int TestTool :: opquery( OptMap & ) {
+		return -1;
+	}
+
 	int TestTool :: webreport( OptMap & ) {
 		return -1;
 	}
@@ -102,9 +106,38 @@ namespace logagent {
 	int TestToolImpl :: opreport( OptMap & opt_map ) {
 		opmsg req;
 
+		req.time = 1476678433;
+		req.user = "david";
+		req.action = "Logout";
+
 		Client cli;
 		int ret = cli.opreport( req );
 		printf( "%s return %d\n", __func__, ret );
+
+		return 0;
+	}
+
+	int TestToolImpl :: opquery( OptMap & opt_map ) {
+		opqueryreq req;
+		opqueryres res;
+
+		req.user = "david";
+		req.begintime = 1476678433;
+		req.endtime = 1476678493;
+
+		Client cli;
+		int ret = cli.opquery( req, res );
+		printf( "%s return %d\n", __func__, ret );
+		for(std::list<opmsg>::iterator it = res.oplogs.begin();
+				it != res.oplogs.end();
+				++it) {
+			printf( "\t%d %s %s %s %s\n", 
+					it->time, 
+					it->user.c_str(), 
+					it->action.c_str(),
+					it->args.c_str(),
+					it->others.c_str() );
+		}
 
 		return 0;
 	}

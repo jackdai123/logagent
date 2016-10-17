@@ -58,6 +58,7 @@ namespace logagent {
 			int info(const debugmsg & req);
 			int debug(const debugmsg & req);
 			int opreport(const opmsg & req);
+			int opquery(const opqueryreq & req, opqueryres & res);
 			int webreport(const webmsg & req);
 			int busireport(const busimsg & req);
 	};
