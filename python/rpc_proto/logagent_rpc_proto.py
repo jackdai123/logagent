@@ -61,7 +61,7 @@ class opqueryres(object):
 
 	def to_msgpack(self):
 		return [
-			self.oplogs
+			self.oplogs,
 		]
 
 	def from_msgpack(self, msg):
